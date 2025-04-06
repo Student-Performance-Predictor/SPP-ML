@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+
+# Bytecode cache
+__pycache__/
+*.py[cod]
+
+# Model files
+model/*.joblib
+
+# Data files
+data/*.csv
+
+# VS Code settings (optional, if you don’t want to share workspace config)
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
