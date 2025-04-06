@@ -14,11 +14,9 @@ parent_edu_encoder = joblib.load(PARENT_EDU_ENCODER_PATH)
 
 
 def safe_label_encode(encoder, value, default=0):
-    """Safely encode a label or fallback if unseen."""
     try:
         return encoder.transform([value])[0]
     except ValueError:
-        print(f"⚠️ Warning: '{value}' not seen during training. Using fallback: {default}")
         return default
 
 
@@ -67,6 +65,7 @@ def preprocess_input(df):
 
 def predict_grade(input_data):
     """Predict final grade for a single student dictionary input."""
+
     input_df = pd.DataFrame([input_data])
     processed_df = preprocess_input(input_df)
     processed_df = processed_df.drop(['School', 'Student_ID', 'Name'], axis=1, errors='ignore')
@@ -77,6 +76,7 @@ def predict_grade(input_data):
 
 def predict_bulk(csv_path):
     """Predict grades for multiple students from a CSV."""
+    
     df = pd.read_csv(csv_path)
     original_ids = df[['Student_ID', 'Name']].copy()
 
@@ -90,7 +90,6 @@ def predict_bulk(csv_path):
 
 # Example usage
 if __name__ == "__main__":
-    # Single prediction
     sample_student = {
         'School': 'ABC School',
         'Student_ID': 'S001',
@@ -112,9 +111,8 @@ if __name__ == "__main__":
         'Previous_Grade_2': 70
     }
 
-    print("🎯 Predicted Grade (Single):", predict_grade(sample_student))
+    print("Predicted Grade:", predict_grade(sample_student))
 
-    # # Bulk prediction
     # bulk_result = predict_bulk("data/class5A_students.csv")
     # bulk_result.to_csv("data/class5A_predictions.csv", index=False)
-    # print("✅ Bulk predictions saved to: data/class5A_predictions.csv")
+    # print("Bulk predictions saved to: data/class5A_predictions.csv")

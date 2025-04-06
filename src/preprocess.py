@@ -4,22 +4,22 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 import joblib
 from utils import RAW_DATA_PATH, PROCESSED_DATA_PATH, SCALER_PATH, SCHOOL_ENCODER_PATH, CLASS_ENCODER_PATH, SECTION_ENCODER_PATH, PARENT_EDU_ENCODER_PATH
 
-# Load raw data
+# Loading raw data
 df = pd.read_csv(RAW_DATA_PATH)
 
-# Filter only Classes 1 to 8
+# Filtering only Classes 1 to 8
 df = df[df['Class'].astype(str).isin([str(i) for i in range(1, 9)])]
 
-# Initialize LabelEncoder
+# Initializing LabelEncoder
 le = LabelEncoder()
 
-# Encode categorical features
-df['Sex'] = le.fit_transform(df['Sex'])  # Male=1, Female=0
+# Encoding categorical features
+df['Sex'] = le.fit_transform(df['Sex'])
 df['Extra_Curricular'] = df['Extra_Curricular'].astype(int)
 df['Parental_Education'] = le.fit_transform(df['Parental_Education'])
 df['School'] = le.fit_transform(df['School'])
 df['Class'] = le.fit_transform(df['Class'].astype(str))
-df['Section'] = le.fit_transform(df['Section'].astype(str))  # KEEPING Section
+df['Section'] = le.fit_transform(df['Section'].astype(str))
 
 def encode_and_save(column_name, path):
     le = LabelEncoder() 
@@ -31,7 +31,7 @@ encode_and_save('Class', CLASS_ENCODER_PATH)
 encode_and_save('Section', SECTION_ENCODER_PATH)
 encode_and_save('Parental_Education', PARENT_EDU_ENCODER_PATH)
 
-# 2. Handle missing values
+# Handling missing values
 df.fillna({
     'Attendance_Percentage': df['Attendance_Percentage'].mean(),
     'Study_Hours_Per_Week': df['Study_Hours_Per_Week'].median(),
@@ -44,7 +44,7 @@ df.fillna({
     'Final_Grade': df['Final_Grade'].mean(),
 }, inplace=True)
 
-# 3. Feature scaling
+# Featuring scaling
 scaler = MinMaxScaler()
 scaled_cols = [
     'Attendance_Percentage',
@@ -58,9 +58,9 @@ scaled_cols = [
 ]
 df[scaled_cols] = scaler.fit_transform(df[scaled_cols])
 
-# 4. Save processed data and scaler
+# Saving processed data and scaler
 Path(PROCESSED_DATA_PATH).parent.mkdir(exist_ok=True)
 df.to_csv(PROCESSED_DATA_PATH, index=False)
 joblib.dump(scaler, SCALER_PATH)
 
-print("✅ Preprocessing complete! Saved:", PROCESSED_DATA_PATH)
+print("Preprocessing complete! Saved:", PROCESSED_DATA_PATH)

@@ -1,15 +1,14 @@
 from pathlib import Path
 
-# Base directory (root of your ML repo)
-BASE_DIR = Path(__file__).parent.parent  # Adjust if needed
+BASE_DIR = Path(__file__).parent.parent
 
 # Data directories
-DATA_DIR = BASE_DIR / "data"            # Folder for all data files
-MODEL_DIR = BASE_DIR / "model"          # Folder for saved models/scalers
+DATA_DIR = BASE_DIR / "data"
+MODEL_DIR = BASE_DIR / "model"
 
 # File paths
-RAW_DATA_PATH = DATA_DIR / "raw_students.csv"          # Input raw data
-PROCESSED_DATA_PATH = DATA_DIR / "processed_data.csv"  # Output cleaned data
+RAW_DATA_PATH = DATA_DIR / "raw_students.csv"
+PROCESSED_DATA_PATH = DATA_DIR / "processed_data.csv"
 SCALER_PATH = MODEL_DIR / "scaler.joblib"
 MODEL_PATH = MODEL_DIR / "model.joblib"
 
