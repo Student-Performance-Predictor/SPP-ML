@@ -1,19 +1,20 @@
-# Virtual environment
+# Ignore virtual environment
 venv/
 
-# Bytecode cache
+# Ignore Python bytecode and cache
 __pycache__/
 *.py[cod]
 
-# Model files
-model/*.joblib
-
-# Data files
-data/*.csv
-
-# VS Code settings (optional, if you don’t want to share workspace config)
-.vscode/
-
-# OS-specific
+# Ignore system files
 .DS_Store
 Thumbs.db
+
+# Ignore raw data, but keep processed for testing
+data/raw_students.csv
+
+# Ignore temporary or retrained models (keep main model)
+model/temp_*.joblib
+# Or ignore none, if you want to version-control model files
+
+# Optional: Ignore logs or experiment outputs
+*.log
