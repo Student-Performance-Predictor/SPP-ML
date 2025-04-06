@@ -9,12 +9,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Ignore raw data, but keep processed for testing
-data/raw_students.csv
-
-# Ignore temporary or retrained models (keep main model)
-model/temp_*.joblib
-# Or ignore none, if you want to version-control model files
-
 # Optional: Ignore logs or experiment outputs
 *.log
