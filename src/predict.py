@@ -1,118 +1,82 @@
-import pandas as pd
 import joblib
-from utils import MODEL_PATH, SCALER_PATH
-from utils import SCHOOL_ENCODER_PATH, CLASS_ENCODER_PATH, SECTION_ENCODER_PATH, PARENT_EDU_ENCODER_PATH
+import pandas as pd
+import os
 
-# Load encoders and models globally
-model = joblib.load(MODEL_PATH)
-scaler = joblib.load(SCALER_PATH)
+# Define expected features for consistency
+EXPECTED_FEATURES = [
+    "Attendance_Percentage", "Homework_Completion_Percentage", "Parental_Education",
+    "Study_Hours_Per_Week", "Failures", "Extra_Curricular", "Participation_Score",
+    "Teacher_Rating", "Discipline_Issues", "Late_Submissions",
+    "Previous_Grade_1", "Previous_Grade_2"
+]
 
-school_encoder = joblib.load(SCHOOL_ENCODER_PATH)
-class_encoder = joblib.load(CLASS_ENCODER_PATH)
-section_encoder = joblib.load(SECTION_ENCODER_PATH)
-parent_edu_encoder = joblib.load(PARENT_EDU_ENCODER_PATH)
+def load_model(model_path="models/rf_model.pkl"):
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at: {model_path}")
+    return joblib.load(model_path)
 
+def validate_input(data: pd.DataFrame):
+    missing = [f for f in EXPECTED_FEATURES if f not in data.columns]
+    if missing:
+        raise ValueError(f"Missing features: {missing}")
+    return data[EXPECTED_FEATURES]
 
-def safe_label_encode(encoder, value, default=0):
+def predict_single(student_data: dict, model_path="models/rf_model.pkl"):
     try:
-        return encoder.transform([value])[0]
-    except ValueError:
-        return default
+        model = load_model(model_path)
+        df = pd.DataFrame([student_data])
+        df = validate_input(df)
+        prediction = model.predict(df)[0]
+        print(f"Predicted Final Grade: {int(round(prediction))}")
+        return int(round(prediction))
+    except Exception as e:
+        print(f"Prediction failed: {e}")
+        return None
 
+def predict_bulk(input_data, model_path="models/rf_model.pkl", from_csv=False):
+    """
+    Predict final grades for multiple students.
 
-def preprocess_input(df):
-    """Preprocess the DataFrame for prediction."""
+    Args:
+        input_data (str | pd.DataFrame): CSV file path or DataFrame.
+        model_path (str): Trained model path.
+        from_csv (bool): True if input_data is a CSV file path.
 
-    df['Sex'] = df['Sex'].str.lower().map({'male': 1, 'female': 0})
-    df['Extra_Curricular'] = df['Extra_Curricular'].astype(int)
-
-    # Safe encoding
-    df['School'] = df['School'].apply(lambda x: safe_label_encode(school_encoder, x))
-    df['Class'] = df['Class'].astype(str).apply(lambda x: safe_label_encode(class_encoder, x))
-    df['Section'] = df['Section'].astype(str).apply(lambda x: safe_label_encode(section_encoder, x))
-    df['Parental_Education'] = df['Parental_Education'].astype(str).apply(lambda x: safe_label_encode(parent_edu_encoder, x))
-
-    # Fill missing fields if any
-    defaults = {
-        'Participation_Score': 0,
-        'Teacher_Rating': 0,
-        'Discipline_Issues': 0,
-        'Late_Submissions': 0,
-        'Previous_Grade_1': 0,
-        'Previous_Grade_2': 0,
-    }
-    for col, val in defaults.items():
-        if col not in df.columns:
-            df[col] = val
-        else:
-            df[col] = df[col].fillna(val)
-
-    # Scale numeric columns
-    scaled_cols = [
-        'Attendance_Percentage',
-        'Study_Hours_Per_Week',
-        'Participation_Score',
-        'Teacher_Rating',
-        'Discipline_Issues',
-        'Late_Submissions',
-        'Previous_Grade_1',
-        'Previous_Grade_2'
-    ]
-    df[scaled_cols] = scaler.transform(df[scaled_cols])
-
-    return df
-
-
-def predict_grade(input_data):
-    """Predict final grade for a single student dictionary input."""
-
-    input_df = pd.DataFrame([input_data])
-    processed_df = preprocess_input(input_df)
-    processed_df = processed_df.drop(['School', 'Student_ID', 'Name'], axis=1, errors='ignore')
-
-    predicted_grade = model.predict(processed_df)[0]
-    return round(predicted_grade, 2)
-
-
-def predict_bulk(csv_path):
-    """Predict grades for multiple students from a CSV."""
-    
-    df = pd.read_csv(csv_path)
-    original_ids = df[['Student_ID', 'Name']].copy()
-
-    processed_df = preprocess_input(df)
-    features = processed_df.drop(['School', 'Student_ID', 'Name'], axis=1, errors='ignore')
-
-    preds = model.predict(features)
-    original_ids['Predicted_Grade'] = preds.round(2)
-    return original_ids
-
+    Returns:
+        pd.DataFrame: DataFrame with predictions added.
+    """
+    try:
+        model = load_model(model_path)
+        df = pd.read_csv(input_data) if from_csv else input_data.copy()
+        df = validate_input(df)
+        predictions = model.predict(df)
+        result_df = df.copy()
+        result_df["Predicted_Final_Grade"] = [int(round(p)) for p in predictions]
+        return result_df
+    except Exception as e:
+        print(f"[⚠️] Bulk prediction failed: {e}")
+        return pd.DataFrame()
 
 # Example usage
 if __name__ == "__main__":
-    sample_student = {
-        'School': 'ABC School',
-        'Student_ID': 'S001',
-        'Name': 'John Doe',
-        'Sex': 'Male',
-        'Class': '5',
-        'Section': 'A',
-        'Attendance_Percentage': 85.0,
-        'Homework_Completed': 0,
-        'Parental_Education': 'Secondary',
-        'Study_Hours_Per_Week': 16,
-        'Failures': 2,
-        'Extra_Curricular': 0,
-        'Participation_Score': 1,
-        'Teacher_Rating': 2,
-        'Discipline_Issues': 2,
-        'Late_Submissions': 9,
-        'Previous_Grade_1': 100,
-        'Previous_Grade_2': 70
+    # Single prediction
+    sample_input = {
+        "Attendance_Percentage": 95,
+        "Homework_Completion_Percentage": 100,
+        "Parental_Education": 4,
+        "Study_Hours_Per_Week": 40,
+        "Failures": 0,
+        "Extra_Curricular": 0,
+        "Participation_Score": 2,
+        "Teacher_Rating": 5,
+        "Discipline_Issues": 1,
+        "Late_Submissions": 0,
+        "Previous_Grade_1": 90,
+        "Previous_Grade_2": 100
     }
+    predict_single(sample_input)
 
-    print("Predicted Grade:", predict_grade(sample_student))
-
-    # bulk_result = predict_bulk("data/class5A_students.csv")
-    # bulk_result.to_csv("data/class5A_predictions.csv", index=False)
-    # print("Bulk predictions saved to: data/class5A_predictions.csv")
+    # Bulk prediction from CSV
+    # Ensure the file has the required 12 features
+    # results = predict_bulk("data/new_students.csv", from_csv=True)
+    # print(results)
