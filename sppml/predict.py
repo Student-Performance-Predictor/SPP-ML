@@ -71,7 +71,7 @@ def predict_bulk(input_data, model_path="models/lr_model.pkl", scaler_path="mode
         df = validate_input(df)
         predictions = model.predict(df)
         result_df = df.copy()
-        result_df["Predicted_Final_Grade"] = [int(round(p)) for p in predictions]
+        result_df["Predicted_Final_Grade"] = [min(int(round(p)),100) for p in predictions]
         return result_df
     except Exception as e:
         print(f"Bulk prediction failed: {e}")
