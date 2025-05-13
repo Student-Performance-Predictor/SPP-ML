@@ -52,7 +52,7 @@ def predict_single(student_data: dict, model_path="models/lr_model.pkl", scaler_
         print(f"Prediction failed: {e}")
         return None
 
-def predict_bulk(input_data, model_path="sppml/models/lr_model.pkl", scaler_path="sppml/models/scaler.pkl", from_csv=False):
+def predict_bulk(input_data, model_path="models/lr_model.pkl", scaler_path="models/scaler.pkl", from_csv=False):
     """
     Predict final grades for multiple students.
 
