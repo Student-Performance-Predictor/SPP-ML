@@ -16,7 +16,7 @@ def train_model(cleaned_file="data/students.csv", model_file="sppml/models/lr_mo
     df = pd.read_csv(cleaned_file)
 
     required_features = [
-        "Attendance_Percentage", "Homework_Completion_Percentage", "Parental_Education",
+        "Attendance_Percentage", "Parental_Education",
         "Study_Hours_Per_Week", "Failures", "Extra_Curricular", "Participation_Score",
         "Teacher_Rating", "Discipline_Issues", "Late_Submissions",
         "Previous_Grade_1", "Previous_Grade_2"
@@ -72,6 +72,10 @@ def train_model(cleaned_file="data/students.csv", model_file="sppml/models/lr_mo
     plt.savefig("sppml/models/actual_vs_predicted.png")
     print("Prediction plot saved to: sppml/models/actual_vs_predicted.png")
 
+    # Display feature coefficients
+    coefficients = pd.Series(model.coef_, index=X.columns)
+    print("\n🔍 Feature Coefficients (Impact on Final Grade):")
+    print(coefficients.sort_values(ascending=False))
 
 if __name__ == "__main__":
     train_model()

@@ -1,11 +1,12 @@
 import joblib
 import pandas as pd
+import numpy as np
 import os
 from sklearn.preprocessing import StandardScaler
 
 # Define expected features for consistency
 EXPECTED_FEATURES = [
-    "Attendance_Percentage", "Homework_Completion_Percentage", "Parental_Education",
+    "Attendance_Percentage", "Parental_Education",
     "Study_Hours_Per_Week", "Failures", "Extra_Curricular", "Participation_Score",
     "Teacher_Rating", "Discipline_Issues", "Late_Submissions",
     "Previous_Grade_1", "Previous_Grade_2"
@@ -43,6 +44,7 @@ def predict_single(student_data: dict, model_path="models/lr_model.pkl", scaler_
         df_scaled = pd.DataFrame(scaler.transform(df), columns=df.columns)
 
         prediction = model.predict(df_scaled)[0]
+        prediction = np.clip(prediction, 0, 100)
         return int(round(prediction))
     
     except Exception as e:
@@ -61,6 +63,7 @@ def predict_bulk(input_data, model_path="models/lr_model.pkl", scaler_path="mode
         df_scaled = pd.DataFrame(scaler.transform(df), columns=df.columns)
 
         predictions = model.predict(df_scaled)
+        predictions = np.clip(predictions, 0, 100)
         result_df = df.copy()
         result_df["Predicted_Final_Grade"] = [int(round(p)) for p in predictions]
         return result_df
@@ -71,18 +74,17 @@ def predict_bulk(input_data, model_path="models/lr_model.pkl", scaler_path="mode
 # Example usage
 if __name__ == "__main__":
     sample_input = {
-        "Attendance_Percentage": 10,
-        "Homework_Completion_Percentage": 20,
-        "Parental_Education": 4,
+        "Attendance_Percentage": 80,
+        "Parental_Education": 2,
         "Study_Hours_Per_Week": 10,
-        "Failures": 5,
+        "Failures": 3,
         "Extra_Curricular": 1,
-        "Participation_Score": 2,
-        "Teacher_Rating": 1,
-        "Discipline_Issues": 5,
-        "Late_Submissions": 8,
-        "Previous_Grade_1": 20,
-        "Previous_Grade_2": 10,
+        "Participation_Score": 8,
+        "Teacher_Rating": 3,
+        "Discipline_Issues": 1,
+        "Late_Submissions": 1,
+        "Previous_Grade_1": 40,
+        "Previous_Grade_2": 20,
     }
-    value = min(predict_single(sample_input),95)
+    value = predict_single(sample_input)
     print(value)
