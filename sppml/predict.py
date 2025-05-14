@@ -43,8 +43,7 @@ def predict_single(student_data: dict, model_path="models/lr_model.pkl", scaler_
         df_scaled = pd.DataFrame(scaler.transform(df), columns=df.columns)
 
         prediction = model.predict(df_scaled)[0]
-        print(f"Predicted Final Grade: {min(int(round(prediction)),95)}")
-        return min(int(round(prediction)),95)
+        return int(round(prediction))
     
     except Exception as e:
         print(f"Prediction failed: {e}")
@@ -63,7 +62,7 @@ def predict_bulk(input_data, model_path="models/lr_model.pkl", scaler_path="mode
 
         predictions = model.predict(df_scaled)
         result_df = df.copy()
-        result_df["Predicted_Final_Grade"] = [min(int(round(p)),95) for p in predictions]
+        result_df["Predicted_Final_Grade"] = [int(round(p)) for p in predictions]
         return result_df
     except Exception as e:
         print(f"Bulk prediction failed: {e}")
@@ -85,4 +84,4 @@ if __name__ == "__main__":
         "Previous_Grade_1": 20,
         "Previous_Grade_2": 10,
     }
-    predict_single(sample_input)
+    value = min(predict_single(sample_input),95)
