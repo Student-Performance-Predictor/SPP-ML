@@ -45,6 +45,7 @@ def train_model(cleaned_file="data/students.csv", model_file="sppml/models/lr_mo
     model.fit(X_train_scaled, y_train)
 
     y_pred = model.predict(X_test_scaled)
+    y_pred = np.clip(y_pred, 0, 100)
 
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
