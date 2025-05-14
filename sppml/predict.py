@@ -85,3 +85,4 @@ if __name__ == "__main__":
         "Previous_Grade_2": 10,
     }
     value = min(predict_single(sample_input),95)
+    print(value)
