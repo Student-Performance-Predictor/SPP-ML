@@ -2,7 +2,6 @@ import joblib
 import pandas as pd
 import numpy as np
 import os
-from sklearn.preprocessing import StandardScaler
 
 # Define expected features for consistency
 EXPECTED_FEATURES = [
@@ -44,7 +43,7 @@ def predict_single(student_data: dict, model_path="models/lr_model.pkl", scaler_
         df_scaled = pd.DataFrame(scaler.transform(df), columns=df.columns)
 
         prediction = model.predict(df_scaled)[0]
-        prediction = np.clip(prediction, 0, 100)
+        prediction = np.clip(prediction, 1, 100)
         return int(round(prediction))
     
     except Exception as e:
@@ -63,7 +62,7 @@ def predict_bulk(input_data, model_path="models/lr_model.pkl", scaler_path="mode
         df_scaled = pd.DataFrame(scaler.transform(df), columns=df.columns)
 
         predictions = model.predict(df_scaled)
-        predictions = np.clip(predictions, 0, 100)
+        predictions = np.clip(predictions, 1, 100)
         result_df = df.copy()
         result_df["Predicted_Final_Grade"] = [int(round(p)) for p in predictions]
         return result_df
