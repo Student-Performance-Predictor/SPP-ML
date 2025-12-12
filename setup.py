@@ -4,7 +4,7 @@ setup(
     name='sppml',
     version='0.1.0',
     description='Student Performance Prediction ML Package',
-    author='Your Name',
+    author='Atharva Raj Sinha',
     packages=find_packages(),
     install_requires=[
         'numpy',
